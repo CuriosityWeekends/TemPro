@@ -1,21 +1,26 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <DHT.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+#include <ArduinoJson.h>
 
-// All credentials
 #include "secrets.h"
 
-#define DHTPIN D4      // GPIO2 (change if wired differently)
+#define DHTPIN D4
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
 
-// MQTT client
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-// Timer
+const char* backendUrl = "http://localhost:5000";
+const char* sensorId = "sensor1";
+
+float correctionFactor = 0;
+
 unsigned long lastMsg = 0;
-const long interval = 5000; // every 5 seconds
+const long interval = 5000;
 
 void setup_wifi() {
   delay(10);
@@ -36,11 +41,32 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
+void fetchCorrectionFactor() {
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    WiFiClient client;
+    String url = String(backendUrl) + "/api/get-correction/" + sensorId;
+    http.begin(client, url);
+    int httpCode = http.GET();
+    if (httpCode == 200) {
+      String response = http.getString();
+      StaticJsonDocument<200> doc;
+      deserializeJson(doc, response);
+      correctionFactor = doc["correctionFactor"] | 0.0;
+      Serial.printf("Fetched correction factor: %.2f\n", correctionFactor);
+    } else {
+      Serial.printf("HTTP GET failed, code: %d\n", httpCode);
+    }
+    http.end();
+  } else {
+    Serial.println("WiFi not connected, cannot fetch correction factor");
+  }
+}
+
 void reconnect() {
-  // Loop until we're reconnected
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
-    if (client.connect("TemProSensor1", mqtt_username, mqtt_password) {
+    if (client.connect("TemProSensor1", mqtt_username, mqtt_password)) {
       Serial.println("connected");
     } else {
       Serial.print("failed, rc=");
@@ -55,7 +81,8 @@ void setup() {
   Serial.begin(115200);
   dht.begin();
   setup_wifi();
-  client.setServer(mqtt_server, 1883); // Non-WebSocket port for ESP
+  client.setServer(mqtt_server, 1883);
+  fetchCorrectionFactor();
 }
 
 void loop() {
@@ -68,15 +95,17 @@ void loop() {
   if (now - lastMsg > interval) {
     lastMsg = now;
 
-    float temp = dht.readTemperature();
-    if (isnan(temp)) {
+    float rawTemperature = dht.readTemperature();
+    if (isnan(rawTemperature)) {
       Serial.println("Failed to read from DHT sensor!");
       return;
     }
 
+    float calibratedTemperature = rawTemperature + correctionFactor;
+
     char tempString[8];
-    dtostrf(temp, 1, 2, tempString);
-    Serial.print("Publishing temperature: ");
+    dtostrf(calibratedTemperature, 1, 2, tempString);
+    Serial.print("Publishing calibrated temperature: ");
     Serial.println(tempString);
 
     client.publish("tempro/sensor1", tempString);
