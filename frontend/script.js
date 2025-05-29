@@ -10,7 +10,11 @@ const auth = firebase.auth();
 // Allowed Gmail addresses
 const allowedEmails = [
   'salmanfarishassan4519@gmail.com',
-  'admin2@gmail.com',
+  'curiosityweekends@gmail.com',
+  'business.hsbofficial@gmail.com',
+  'afkar3374@gmail.com',
+  
+
   // Add more allowed Gmail addresses here
 ];
 
