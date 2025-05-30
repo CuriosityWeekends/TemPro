@@ -33,7 +33,6 @@ flowchart TD
 
 ```
 
-
 ---
 
 ## 🔐 1. OAuth & Authentication System (subgraph `s3`)
@@ -84,3 +83,4 @@ This handles real-time data communication between the frontend and IoT device.
    - Connect to MQTT and Firestore
 4. **MQTTClient** communicates in real time with the **NodeMCU** via the broker
 5. **Firestore** stores public offset data as needed
+6. 
