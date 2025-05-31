@@ -8,9 +8,8 @@
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-
-  <div>
+<body class="bg-gray-900 text-white h-full flex items-center justify-center p-6">
+  <div class="w-full max-w-5xl h-[80vh] bg-gray-900 rounded-xl shadow-2xl p-6 flex flex-col space-y-6">
     <div class="flex justify-between items-center">
       <h1 class="text-2xl font-bold text-green-400">🌡️ Live Temperature Monitor</h1>
       <span id="mqttStatus" class="text-sm text-yellow-400">MQTT: Connecting...</span>
