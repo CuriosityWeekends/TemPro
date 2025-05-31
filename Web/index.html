@@ -7,21 +7,19 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-900 text-white h-full flex items-center justify-center p-6">
-  <div class="w-full max-w-5xl h-[80vh] bg-gray-900 rounded-xl shadow-2xl p-6 flex flex-col space-y-6">
-    <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-green-400">🌡️ Live Temperature Monitor</h1>
-      <span id="mqttStatus" class="text-sm text-yellow-400">MQTT: Connecting...</span>
+<body>
+  <div class="main-container">
+    <div class="header">
+      <h1>🌡️ Live Temperature Monitor</h1>
+      <span id="mqttStatus">MQTT: Connecting...</span>
     </div>
-    <div id="tempIndicator" class="mt-4 text-lg font-bold">Status: <span id="statusText" class="text-green-500">Normal</span></div>
-    <div class="flex-grow bg-gray-800 rounded-lg p-4">
-	  
-      <canvas id="tempChart" class="h-full w-full"></canvas>
+    <div id="tempIndicator">Status: <span id="statusText">Normal</span></div>
+    <div class="chart-wrapper">
+      <canvas id="tempChart"></canvas>
     </div>
-    <button id="calibrateBtn" class="px-4 py-2 bg-green-600 rounded hover:bg-green-700 transition" >
-      Calibrate 
-    </button>
+    <button id="calibrateBtn">Calibrate</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
