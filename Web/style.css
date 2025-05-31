@@ -1,93 +1,93 @@
 /* Global dark background and neon font styling */
 body {
-  margin: 0;
-  padding: 1.5rem;
-  background-color: #0f0f1c;
-  color: #e0e0ff;
-  font-family: 'Orbitron', sans-serif;
-  font-weight: 300;
-  letter-spacing: 0.5px;
-  overflow: hidden;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    margin: 0;
+    padding: 1.5rem;
+    background-color: #0f0f1c;
+    color: #e0e0ff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Container styling */
 .main-container {
-  width: 100%;
-  max-width: 80rem;
-  height: 80vh;
-  background-color: #0f0f1c;
-  border-radius: 1rem;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+    width: 100%;
+    max-width: 80rem;
+    height: 80vh;
+    background-color: #0f0f1c;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 /* Header */
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .header h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #4ade80; /* Tailwind's green-400 */
-  text-shadow: 0 0 6px #0ff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4ade80;
+    text-shadow: 0 0 6px #0ff;
 }
 
 #mqttStatus {
-  font-size: 0.875rem;
-  color: #facc15; /* Tailwind's yellow-400 */
+    font-size: 0.875rem;
+    color: #facc15;
 }
 
 /* Status */
 #tempIndicator {
-  margin-top: 1rem;
-  font-size: 1.125rem;
-  font-weight: bold;
+    margin-top: 1rem;
+    font-size: 1.125rem;
+    font-weight: bold;
 }
 
 #statusText {
-  color: #22c55e; /* Tailwind's green-500 */
+    color: #22c55e;
 }
 
 /* Chart */
 .chart-wrapper {
-  flex-grow: 1;
-  background-color: #1f2937; /* Tailwind's gray-800 */
-  border-radius: 0.5rem;
-  padding: 1rem;
+    flex-grow: 1;
+    background-color: #1f2937;
+    border-radius: 0.5rem;
+    padding: 1rem;
 }
 
 #tempChart {
-  width: 100%;
-  height: 100%;
-  display: block;
-  background-color: #1a1a2e;
-  border: 2px solid #0ff;
-  border-radius: 1rem;
-  padding: 1rem;
-  box-sizing: border-box;
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-color: #1a1a2e;
+    border: 2px solid #0ff;
+    border-radius: 1rem;
+    padding: 1rem;
+    box-sizing: border-box;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
 }
 
 /* Button */
 #calibrateBtn {
-  padding: 0.5rem 1rem;
-  background-color: #16a34a; /* Tailwind's green-600 */
-  border-radius: 0.5rem;
-  transition: background-color 0.2s ease;
-  color: white;
-  font-weight: 500;
+    padding: 0.5rem 1rem;
+    background-color: #16a34a;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+    color: white;
+    font-weight: 500;
 }
 
 #calibrateBtn:hover {
-  background-color: #15803d; /* Tailwind's green-700 */
+    background-color: #15803d;
 }
