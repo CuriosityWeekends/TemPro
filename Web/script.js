@@ -1,4 +1,4 @@
-// Check if firebase is defined
+// Check if firebase is defined and initialize it
 if (typeof firebase === 'undefined') {
   console.error('Firebase SDK not loaded. Ensure Firebase scripts are included in HTML.');
   Swal.fire({
@@ -16,14 +16,16 @@ if (typeof firebase === 'undefined') {
     apiKey: "AIzaSyDeNFTMYiKVVtrnTQHZFb_-Uhh307CrEaU",
     authDomain: "temprocw.firebaseapp.com",
     projectId: "temprocw",
-    storageBucket: "temprocw.firebasestorage.app",
+    storageBucket: "temprocw.appspot.com", // FIXED bucket domain
     messagingSenderId: "537290462610",
     appId: "1:537290462610:web:0b653f682f4a177e9f1d4b"
   };
 
-  // Initialize Firebase
+  // Initialize Firebase safely
   try {
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
   } catch (error) {
     console.error('Error initializing Firebase:', error);
     Swal.fire({
@@ -36,8 +38,24 @@ if (typeof firebase === 'undefined') {
       timerProgressBar: true
     });
   }
-  const db = firebase.firestore();
+
+  // Safe firestore access
+  if (!firebase.firestore) {
+    console.error('Firestore module not loaded.');
+    Swal.fire({
+      theme: 'dark',
+      icon: 'error',
+      title: 'Error',
+      text: 'Firebase Firestore SDK not loaded.',
+      timer: 5000,
+      showConfirmButton: false,
+      timerProgressBar: true
+    });
+  }
 }
+
+const db = firebase.firestore();
+
 
 // MQTT connection
 const client = mqtt.connect('ws://dev.streakon.net:9001', {
