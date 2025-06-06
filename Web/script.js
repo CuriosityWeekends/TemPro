@@ -235,6 +235,56 @@ function loadOffsetsFromFirestore() {
   });
 }
 
+document.getElementById('loadLogsBtn').addEventListener('click', async () => {
+  const logsContainer = document.getElementById('logsContainer');
+  const logsTableBody = document.getElementById('logsTableBody');
+
+  // Toggle visibility
+  if (!logsContainer.classList.contains('hidden')) {
+    logsContainer.classList.add('hidden');
+    return;
+  }
+
+  logsTableBody.innerHTML = '<tr><td colspan="2" class="text-center py-2">Loading...</td></tr>';
+  logsContainer.classList.remove('hidden');
+
+  try {
+    const snapshot = await db.collection('temperatureLogs')
+      .orderBy('timestamp', 'desc')
+      .limit(10)
+      .get();
+
+    if (snapshot.empty) {
+      logsTableBody.innerHTML = '<tr><td colspan="2" class="text-center py-2">No logs found.</td></tr>';
+      return;
+    }
+
+    logsTableBody.innerHTML = '';
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const timestamp = new Date(data.timestamp).toLocaleString();
+
+      // Format readings as "sensor: value" pairs joined by commas
+      const readings = data.readings || {};
+      const readingsText = Object.entries(readings)
+        .map(([sensor, temp]) => `${sensor}: ${temp.toFixed(2)}°C`)
+        .join(', ');
+
+      const row = `
+        <tr class="border-t border-gray-600">
+          <td class="px-2 py-1 align-top">${timestamp}</td>
+          <td class="px-2 py-1">${readingsText}</td>
+        </tr>
+      `;
+      logsTableBody.insertAdjacentHTML('beforeend', row);
+    });
+  } catch (error) {
+    logsTableBody.innerHTML = `<tr><td colspan="2" class="text-center py-2 text-red-500">Error loading logs.</td></tr>`;
+    console.error('Error loading temperature logs:', error);
+  }
+});
+
 function saveOffsetsToFirestore() {
   const updates = [...sensorOffsetMap.entries()].map(([sensor, offset]) =>
     db.collection('sensorOffsets').doc(sensor).set({ offset, timestamp: new Date().toISOString() })

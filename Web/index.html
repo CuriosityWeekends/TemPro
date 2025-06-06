@@ -5,9 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tempro - Live Temperature Monitoring</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
- <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 
@@ -51,6 +51,29 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- New Temperature Logs Section -->
+    <div class="mt-8 bg-gray-800 p-4 rounded-lg w-full max-w-7xl">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">🗂️ Temperature Logs</h2>
+        <button id="loadLogsBtn" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm">
+          Load Logs
+        </button>
+      </div>
+      <div id="logsContainer" class="overflow-auto max-h-64 border border-gray-700 rounded hidden">
+        <table class="table-auto w-full text-sm text-left text-white">
+          <thead>
+            <tr class="bg-gray-700">
+              <th class="px-2 py-1">Timestamp</th>
+              <th class="px-2 py-1">Readings (Sensor: °C)</th>
+            </tr>
+          </thead>
+          <tbody id="logsTableBody" class="divide-y divide-gray-600">
+            <!-- Logs will be inserted here -->
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
