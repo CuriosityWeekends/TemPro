@@ -108,6 +108,36 @@ const chart = new Chart(ctx, {
   }
 });
 
+const analyticsCtx = document.getElementById('analyticsChart').getContext('2d');
+const sensorColors = ['#4caf50', '#ff9800', '#2196f3', '#f44336', '#9c27b0', '#3f51b5', '#009688', '#795548', '#607d8b', '#00bcd4'];
+
+const analyticsChart = new Chart(analyticsCtx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: []
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        title: { display: true, text: 'Temperature (°C)', color: '#ffffff' },
+        ticks: { color: '#ffffff' },
+        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+      },
+      x: {
+        title: { display: true, text: 'Time', color: '#ffffff' },
+        ticks: { color: '#ffffff' },
+        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#ffffff' } }
+    }
+  }
+});
+
 // Last Seen Table Update
 function updateLastSeenTable() {
   const tbody = document.getElementById('lastSeenTableBody');
@@ -239,7 +269,6 @@ document.getElementById('loadLogsBtn').addEventListener('click', async () => {
   const logsContainer = document.getElementById('logsContainer');
   const logsTableBody = document.getElementById('logsTableBody');
 
-  // Toggle visibility
   if (!logsContainer.classList.contains('hidden')) {
     logsContainer.classList.add('hidden');
     return;
@@ -250,8 +279,8 @@ document.getElementById('loadLogsBtn').addEventListener('click', async () => {
 
   try {
     const snapshot = await db.collection('temperatureLogs')
-      .orderBy('timestamp', 'desc')
-      .limit(10)
+      .orderBy('timestamp', 'asc')
+      .limit(100)
       .get();
 
     if (snapshot.empty) {
@@ -261,11 +290,15 @@ document.getElementById('loadLogsBtn').addEventListener('click', async () => {
 
     logsTableBody.innerHTML = '';
 
+    const sensorSeries = {};
+    const timestamps = [];
+
     snapshot.forEach(doc => {
       const data = doc.data();
       const timestamp = new Date(data.timestamp).toLocaleString();
+      const timeLabel = new Date(data.timestamp).toLocaleTimeString();
+      timestamps.push(timeLabel);
 
-      // Format readings as "sensor: value" pairs joined by commas
       const readings = data.readings || {};
       const readingsText = Object.entries(readings)
         .map(([sensor, temp]) => `${sensor}: ${temp.toFixed(2)}°C`)
@@ -278,12 +311,35 @@ document.getElementById('loadLogsBtn').addEventListener('click', async () => {
         </tr>
       `;
       logsTableBody.insertAdjacentHTML('beforeend', row);
+
+      for (const [sensor, temp] of Object.entries(readings)) {
+        if (!sensorSeries[sensor]) sensorSeries[sensor] = [];
+        sensorSeries[sensor].push(temp);
+      }
     });
+
+    const datasets = Object.entries(sensorSeries).map(([sensor, temps], i) => ({
+      label: sensor,
+      data: temps,
+      borderColor: sensorColors[i % sensorColors.length],
+      backgroundColor: 'transparent',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 3,
+      pointHoverRadius: 6
+    }));
+
+    analyticsChart.data.labels = timestamps;
+    analyticsChart.data.datasets = datasets;
+    analyticsChart.update();
+
   } catch (error) {
     logsTableBody.innerHTML = `<tr><td colspan="2" class="text-center py-2 text-red-500">Error loading logs.</td></tr>`;
     console.error('Error loading temperature logs:', error);
+    showErrorAlert('Could not load logs.');
   }
 });
+
 
 function saveOffsetsToFirestore() {
   const updates = [...sensorOffsetMap.entries()].map(([sensor, offset]) =>

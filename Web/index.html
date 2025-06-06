@@ -24,7 +24,6 @@
     </div>
 
     <div class="flex flex-col lg:flex-row gap-4">
-      <!-- 📈 Chart Area -->
       <div class="flex-1 bg-gray-800 p-4 rounded-lg">
         <div class="chart-wrapper h-[400px]">
           <canvas id="tempChart"></canvas>
@@ -34,7 +33,6 @@
         </button>
       </div>
 
-      <!-- 📅 Last Seen Table (Short + Right-Aligned) -->
       <div class="w-full lg:w-80 bg-gray-800 p-4 rounded-lg">
         <h2 class="text-lg font-semibold mb-2">📅 Sensor Last Seen</h2>
         <div class="overflow-auto max-h-[400px]">
@@ -47,7 +45,6 @@
               </tr>
             </thead>
             <tbody id="lastSeenTableBody" class="divide-y divide-gray-600">
-              <!-- Rows will be inserted dynamically -->
             </tbody>
           </table>
         </div>
@@ -70,9 +67,14 @@
             </tr>
           </thead>
           <tbody id="logsTableBody" class="divide-y divide-gray-600">
-            <!-- Logs will be inserted here -->
           </tbody>
         </table>
+      </div>
+    </div>
+    <div class="flex-1 bg-gray-800 p-4 rounded-lg">
+      <h2 class="text-lg font-semibold mb-2">📊 Analytics</h2>
+      <div class="analytic-container chart-wrapper h-[400px]">
+        <canvas id="analyticsChart"></canvas>
       </div>
     </div>
   </div>
