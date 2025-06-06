@@ -11,17 +11,48 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 
-<body>
-  <div class="main-container">
-    <div class="header">
-      <h1>🌡️ Live Temperature Monitor</h1>
-      <span id="mqttStatus">MQTT: Connecting...</span>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center">
+
+  <div class="main-container w-full max-w-7xl p-4">
+    <div class="header flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">🌡️ Live Temperature Monitor</h1>
+      <span id="mqttStatus" class="text-sm text-gray-400">MQTT: Connecting...</span>
     </div>
-    <div id="tempIndicator">Status: <span id="statusText">Normal</span></div>
-    <div class="chart-wrapper">
-      <canvas id="tempChart"></canvas>
+
+    <div id="tempIndicator" class="mb-4 text-lg">
+      Status: <span id="statusText" class="font-semibold">Normal</span>
     </div>
-    <button id="calibrateBtn">Calibrate</button>
+
+    <div class="flex flex-col lg:flex-row gap-4">
+      <!-- 📈 Chart Area -->
+      <div class="flex-1 bg-gray-800 p-4 rounded-lg">
+        <div class="chart-wrapper h-[400px]">
+          <canvas id="tempChart"></canvas>
+        </div>
+        <button id="calibrateBtn" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
+          Calibrate
+        </button>
+      </div>
+
+      <!-- 📅 Last Seen Table (Short + Right-Aligned) -->
+      <div class="w-full lg:w-80 bg-gray-800 p-4 rounded-lg">
+        <h2 class="text-lg font-semibold mb-2">📅 Sensor Last Seen</h2>
+        <div class="overflow-auto max-h-[400px]">
+          <table class="table-auto w-full text-sm text-left text-white">
+            <thead>
+              <tr class="bg-gray-700">
+                <th class="px-2 py-1">Sensor</th>
+                <th class="px-2 py-1">Temp</th>
+                <th class="px-2 py-1">Seen</th>
+              </tr>
+            </thead>
+            <tbody id="lastSeenTableBody" class="divide-y divide-gray-600">
+              <!-- Rows will be inserted dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
