@@ -186,7 +186,7 @@ async function updateTemperatureLogs() {
   // Cut off milliseconds to reduce duplicates — ISO string to seconds only
   const timestampId = now.toISOString().split('.')[0] + 'Z'; // e.g. "2025-06-06T11:30:00Z"
 
-  const docRef = db.collection('temperature_logs').doc(timestampId);
+  const docRef = db.collection('temperatureLogs').doc(timestampId);
 
   try {
     const doc = await docRef.get();
