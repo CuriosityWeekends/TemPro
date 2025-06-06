@@ -178,6 +178,39 @@ function updateChart() {
   chart.update();
 }
 
+async function updateTemperatureLogs() {
+  if (sensorDataMap.size === 0) return;  // No data to save
+
+  // Use current ISO timestamp as doc ID (second precision)
+  const now = new Date();
+  // Cut off milliseconds to reduce duplicates — ISO string to seconds only
+  const timestampId = now.toISOString().split('.')[0] + 'Z'; // e.g. "2025-06-06T11:30:00Z"
+
+  const docRef = db.collection('temperature_logs').doc(timestampId);
+
+  try {
+    const doc = await docRef.get();
+    if (doc.exists) {
+      console.log(`Temperature log for ${timestampId} already exists, skipping write.`);
+      return;  // Or you could update if you want
+    }
+
+    // Prepare readings object from sensorDataMap
+    const readings = {};
+    sensorDataMap.forEach((temp, sensor) => {
+      readings[sensor] = temp;
+    });
+
+    await docRef.set({ readings, timestamp: now.toISOString() });
+
+    console.log(`Temperature log saved at ${timestampId}`);
+
+  } catch (error) {
+    console.error('Error saving temperature log:', error);
+    showErrorAlert('Failed to save temperature log.');
+  }
+}
+
 // Firestore Load/Save
 function loadOffsetsFromFirestore() {
   db.collection('sensorOffsets').onSnapshot(snapshot => {
@@ -315,3 +348,4 @@ client.on('error', () => {
 // Start
 loadOffsetsFromFirestore();
 setInterval(updateChart, 5000);
+setInterval(updateTemperatureLogs, 20000);
