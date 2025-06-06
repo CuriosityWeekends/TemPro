@@ -201,7 +201,7 @@ async function updateTemperatureLogs() {
       readings[sensor] = temp;
     });
 
-    await docRef.set({ readings, timestamp: now.toISOString() });
+    await docRef.set({ readings, timestamp: timestampId });
 
     console.log(`Temperature log saved at ${timestampId}`);
 
