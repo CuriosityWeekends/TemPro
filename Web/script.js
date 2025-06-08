@@ -156,7 +156,7 @@ function updateLastSeenTable() {
     const row = `
       <tr class="border-t border-gray-600 text-sm">
         <td class="px-4 py-2">${sensor}</td>
-        <td class="px-4 py-2">${temp.toFixed(2)}</td>
+        <td class="px-4 py-2">${(temp+(sensorOffsetMap.get(sensor) || 0)).toFixed(2)}</td>
         <td class="px-4 py-2">${lastSeenTime}</td>
       </tr>
     `;
@@ -228,10 +228,10 @@ async function updateTemperatureLogs() {
     // Prepare readings object from sensorDataMap
     const readings = {};
     sensorDataMap.forEach((temp, sensor) => {
-      readings[sensor] = temp;
+      readings[sensor] = temp + (sensorOffsetMap.get(sensor) || 0);
     });
 
-    await docRef.set({ readings, timestamp: timestampId });
+    await docRef.set({ readings, timestamp: now.toISOString() });
 
     console.log(`Temperature log saved at ${timestampId}`);
 
@@ -430,7 +430,7 @@ client.on('message', (topic, message) => {
   const timestamp = new Date();
 
   if (!isNaN(temp)) {
-    sensorDataMap.set(sensor, temp);
+    sensorDataMap.set(sensor, temp + (sensorOffsetMap.get(sensor) || 0));
     sensorLastSeenMap.set(sensor, timestamp.getTime());
 
     updateChart();
