@@ -7,15 +7,13 @@ body {
     font-family: 'Orbitron', sans-serif;
     font-weight: 300;
     letter-spacing: 0.5px;
-    overflow: hidden;
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 /* Container styling */
-.main-container {
+.main-container .analytic-container{
     width: 100%;
     max-width: 80rem;
     height: 80vh;

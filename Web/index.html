@@ -5,27 +5,84 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tempro - Live Temperature Monitoring</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 
-<body>
-  <div class="main-container">
-    <div class="header">
-      <h1>🌡️ Live Temperature Monitor</h1>
-      <span id="mqttStatus">MQTT: Connecting...</span>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center">
+
+  <div class="main-container w-full max-w-7xl p-4">
+    <div class="header flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">🌡️ Live Temperature Monitor</h1>
+      <span id="mqttStatus" class="text-sm text-gray-400">MQTT: Connecting...</span>
     </div>
-    <div id="tempIndicator">Status: <span id="statusText">Normal</span></div>
-    <div class="chart-wrapper">
-      <canvas id="tempChart"></canvas>
+
+    <div id="tempIndicator" class="mb-4 text-lg">
+      Status: <span id="statusText" class="font-semibold">Normal</span>
     </div>
-    <button id="calibrateBtn">Calibrate</button>
+
+    <div class="flex flex-col lg:flex-row gap-4">
+      <div class="flex-1 bg-gray-800 p-4 rounded-lg">
+        <div class="chart-wrapper h-[400px]">
+          <canvas id="tempChart"></canvas>
+        </div>
+        <button id="calibrateBtn" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
+          Calibrate
+        </button>
+      </div>
+
+      <div class="w-full lg:w-80 bg-gray-800 p-4 rounded-lg">
+        <h2 class="text-lg font-semibold mb-2">📅 Sensor Last Seen</h2>
+        <div class="overflow-auto max-h-[400px]">
+          <table class="table-auto w-full text-sm text-left text-white">
+            <thead>
+              <tr class="bg-gray-700">
+                <th class="px-2 py-1">Sensor</th>
+                <th class="px-2 py-1">Temp</th>
+                <th class="px-2 py-1">Seen</th>
+              </tr>
+            </thead>
+            <tbody id="lastSeenTableBody" class="divide-y divide-gray-600">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 bg-gray-800 p-4 rounded-lg w-full max-w-7xl">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg font-semibold">🗂️ Temperature Logs</h2>
+        <button id="loadLogsBtn" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-sm">
+          Load Logs
+        </button>
+      </div>
+      <div id="logsContainer" class="overflow-auto max-h-64 border border-gray-700 rounded hidden">
+        <table class="table-auto w-full text-sm text-left text-white">
+          <thead>
+            <tr class="bg-gray-700">
+              <th class="px-2 py-1">Timestamp</th>
+              <th class="px-2 py-1">Readings (Sensor: °C)</th>
+            </tr>
+          </thead>
+          <tbody id="logsTableBody" class="divide-y divide-gray-600">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="flex-1 bg-gray-800 p-4 rounded-lg">
+      <h2 class="text-lg font-semibold mb-2">📊 Analytics</h2>
+      <div class="analytic-container chart-wrapper h-[400px]">
+        <canvas id="analyticsChart"></canvas>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="script.js"></script>
+  <script src="script.js" type="module"></script>
 </body>
 
 </html>
