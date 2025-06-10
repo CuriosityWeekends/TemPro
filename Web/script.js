@@ -43,6 +43,9 @@ const sensorLastSeenMap = new Map();
 const sensorOffsetMap = new Map();
 let calibrationBaseline = null;
 
+window.sensorDataMap = sensorDataMap;
+window.sensorOffsetMap = sensorOffsetMap;
+
 const chart = new Chart(ctx, {
   type: 'line',
   data: {
@@ -230,7 +233,6 @@ async function updateTemperatureLogs() {
     sensorDataMap.forEach((temp, sensor) => {
       readings[sensor] = temp + (sensorOffsetMap.get(sensor) || 0);
     });
-
     await docRef.set({ readings, timestamp: now.toISOString() });
 
     console.log(`Temperature log saved at ${timestampId}`);
@@ -430,7 +432,7 @@ client.on('message', (topic, message) => {
   const timestamp = new Date();
 
   if (!isNaN(temp)) {
-    sensorDataMap.set(sensor, temp + (sensorOffsetMap.get(sensor) || 0));
+    sensorDataMap.set(sensor, temp);
     sensorLastSeenMap.set(sensor, timestamp.getTime());
 
     updateChart();
