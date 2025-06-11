@@ -6,55 +6,261 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tempro - Live Temperature Monitoring</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    /* Custom violet theme with enhanced styling */
+    :root {
+      --violet-900: #1a0d2e;
+      --violet-800: #2d1560;
+      --violet-700: #4c1d95;
+      --violet-600: #7c3aed;
+      --violet-500: #8b5cf6;
+      --violet-400: #a78bfa;
+      --gradient-primary: linear-gradient(135deg, var(--violet-900) 0%, var(--violet-800) 100%);
+      --gradient-secondary: linear-gradient(135deg, var(--violet-800) 0%, var(--violet-700) 100%);
+    }
+
+    .bg-violet-900 { background-color: var(--violet-900); }
+    .bg-violet-800 { background-color: var(--violet-800); }
+    .bg-violet-700 { background-color: var(--violet-700); }
+    .bg-violet-600 { background-color: var(--violet-600); }
+    .bg-violet-500 { background-color: var(--violet-500); }
+    .text-violet-400 { color: var(--violet-400); }
+    .text-violet-300 { color: #c4b5fd; }
+    .border-violet-600 { border-color: var(--violet-600); }
+    .border-violet-700 { border-color: var(--violet-700); }
+    
+    .hover\:bg-violet-700:hover { background-color: var(--violet-700); }
+    .hover\:bg-violet-800:hover { background-color: var(--violet-800); }
+    .hover\:border-violet-500:hover { border-color: var(--violet-500); }
+
+    /* Gradient backgrounds */
+    .bg-gradient-primary { background: var(--gradient-primary); }
+    .bg-gradient-secondary { background: var(--gradient-secondary); }
+
+    /* Enhanced card styling */
+    .card {
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(124, 58, 237, 0.15);
+    }
+
+    /* Button enhancements */
+    .btn {
+      transition: all 0.2s ease;
+      font-weight: 500;
+      letter-spacing: 0.025em;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    /* Status indicator styling */
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--violet-400);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Table styling */
+    .data-table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .data-table th {
+      background: var(--gradient-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    .data-table tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    .data-table tbody tr:hover {
+      background-color: rgba(124, 58, 237, 0.1);
+    }
+
+    /* Chart container */
+    .chart-container {
+      position: relative;
+      background: var(--gradient-primary);
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    /* Responsive typography */
+    @media (max-width: 640px) {
+      .main-title { font-size: 1.25rem; }
+      .section-title { font-size: 1rem; }
+    }
+
+    @media (min-width: 641px) {
+      .main-title { font-size: 1.5rem; }
+      .section-title { font-size: 1.125rem; }
+    }
+
+    @media (min-width: 1024px) {
+      .main-title { font-size: 2rem; }
+      .section-title { font-size: 1.25rem; }
+    }
+
+    /* Scrollbar styling */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: var(--violet-900);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--violet-600);
+      border-radius: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: var(--violet-500);
+    }
+  </style>
   <link rel="stylesheet" href="style.css" />
- <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 </head>
 
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center">
+<body class="bg-black text-white min-h-screen">
 
-  <div class="main-container w-full max-w-7xl p-4">
-    <div class="header flex justify-between items-center mb-4">
-      <h1 class="text-2xl font-bold">🌡️ Live Temperature Monitor</h1>
-      <span id="mqttStatus" class="text-sm text-gray-400">MQTT: Connecting...</span>
-    </div>
-
-    <div id="tempIndicator" class="mb-4 text-lg">
-      Status: <span id="statusText" class="font-semibold">Normal</span>
-    </div>
-
-    <div class="flex flex-col lg:flex-row gap-4">
-      <!-- 📈 Chart Area -->
-      <div class="flex-1 bg-gray-800 p-4 rounded-lg">
-        <div class="chart-wrapper h-[400px]">
-          <canvas id="tempChart"></canvas>
+  <div class="min-h-screen bg-gradient-to-br from-black via-violet-900 to-black">
+    <div class="container mx-auto px-4 pt-12 pb-6 max-w-7xl">
+      
+      <!-- Header Section -->
+      <header class="mb-8 mt-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="main-title font-bold text-violet-300 mb-2 mt-8">
+              🌡️ Temperature Monitoring System
+            </h1>
+            <div id="tempIndicator" class="status-indicator text-violet-400">
+              <span class="status-dot"></span>
+              <span class="text-sm font-medium">Status: </span>
+              <span id="statusText" class="font-semibold">Initializing...</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="mqttStatus" class="text-sm text-violet-400 font-medium px-3 py-1 bg-violet-900 rounded-full border border-violet-700">
+              MQTT: Connecting...
+            </span>
+          </div>
         </div>
-        <button id="calibrateBtn" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">
-          Calibrate
-        </button>
+      </header>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        
+        <!-- Chart Section -->
+        <div class="xl:col-span-2">
+          <div class="card bg-gradient-primary p-6 rounded-xl border border-violet-700">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="section-title font-semibold text-violet-300">📈 Live Temperature Data</h2>
+              <div class="text-xs text-violet-400">Real-time Updates</div>
+            </div>
+            
+            <div class="chart-container">
+              <div class="h-64 sm:h-80 lg:h-96">
+                <canvas id="tempChart" class="w-full h-full"></canvas>
+              </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div id="authSection" class="mt-6 flex flex-wrap gap-3">
+              <button id="signInBtn" class="btn px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium hidden">
+                🔐 Authenticate
+              </button>
+              <button id="calibrateBtn" class="btn px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium hidden">
+                🔧 Calibrate Sensors
+              </button>
+              <button id="logoutBtn" class="btn px-4 py-2 bg-violet-800 hover:bg-violet-900 text-white rounded-lg text-sm font-medium border border-violet-600 hidden">
+                🚪 Logout
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sensor Status Table -->
+        <div class="xl:col-span-1">
+          <div class="card bg-gradient-primary p-6 rounded-xl border border-violet-700 h-full">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="section-title font-semibold text-violet-300">📊 Sensor Status</h2>
+              <div class="w-2 h-2 bg-violet-400 rounded-full animate-pulse"></div>
+            </div>
+            
+            <div class="overflow-hidden rounded-lg border border-violet-700">
+              <div class="custom-scrollbar overflow-auto max-h-80 lg:max-h-96">
+                <table class="data-table w-full text-sm">
+                  <thead class="sticky top-0">
+                    <tr>
+                      <th class="px-3 py-3 text-left text-violet-300 border-b border-violet-700">Sensor ID</th>
+                      <th class="px-3 py-3 text-center text-violet-300 border-b border-violet-700">Temp (°C)</th>
+                      <th class="px-3 py-3 text-right text-violet-300 border-b border-violet-700">Last Seen</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lastSeenTableBody" class="divide-y divide-violet-800">
+                    <!-- Dynamic content will be inserted here -->
+                    <tr class="text-violet-400">
+                      <td colspan="3" class="px-3 py-8 text-center text-sm">
+                        <div class="flex flex-col items-center gap-2">
+                          <div class="w-8 h-8 border-2 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                          <span>Loading sensor data...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- Table Footer Info -->
+            <div class="mt-4 text-xs text-violet-400 flex justify-between items-center">
+              <span>Auto-refresh: 30s</span>
+              <!-- <span id="sensorCount">Loading...</span> -->
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 📅 Last Seen Table (Short + Right-Aligned) -->
-      <div class="w-full lg:w-80 bg-gray-800 p-4 rounded-lg">
-        <h2 class="text-lg font-semibold mb-2">📅 Sensor Last Seen</h2>
-        <div class="overflow-auto max-h-[400px]">
-          <table class="table-auto w-full text-sm text-left text-white">
-            <thead>
-              <tr class="bg-gray-700">
-                <th class="px-2 py-1">Sensor</th>
-                <th class="px-2 py-1">Temp</th>
-                <th class="px-2 py-1">Seen</th>
-              </tr>
-            </thead>
-            <tbody id="lastSeenTableBody" class="divide-y divide-gray-600">
-              <!-- Rows will be inserted dynamically -->
-            </tbody>
-          </table>
+      <!-- Footer -->
+      <footer class="mt-8 pt-6 border-t border-violet-800">
+        <div class="text-center text-xs text-violet-400">
+          <p>Tempro Monitoring System • Real-time Temperature Analytics</p>
         </div>
-      </div>
+      </footer>
     </div>
   </div>
 
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

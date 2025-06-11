@@ -21,22 +21,39 @@ const firebaseConfig = {
   appId: "1:537290462610:web:0b653f682f4a177e9f1d4b"
 };
 
+// Initialize Firebase
 try {
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
 } catch (error) {
   console.error('Firebase init error:', error);
   showErrorAlert('Failed to initialize Firebase.');
 }
 
+const auth = firebase.auth();
 const db = firebase.firestore();
+
+// Admin Emails
+const adminEmails = [
+  'salmanfarishassan4519@gmail.com',
+  'curiosityweekends@gmail.com'
+  // Add your admin emails here
+];
+
+// DOM Elements
+// DOM Elements
+const mqttStatus = document.getElementById('mqttStatus');
+const statusText = document.getElementById('statusText');
+const signInBtn = document.getElementById('signInBtn');
+const calibrateBtn = document.getElementById('calibrateBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const ctx = document.getElementById('tempChart').getContext('2d');
+
 const client = mqtt.connect('ws://dev.streakon.net:9001', {
   username: 'tempro',
   password: 'firstfloor'
 });
-
-const mqttStatus = document.getElementById('mqttStatus');
-const statusText = document.getElementById('statusText');
-const ctx = document.getElementById('tempChart').getContext('2d');
 
 const sensorDataMap = new Map();
 const sensorLastSeenMap = new Map();
@@ -56,7 +73,7 @@ const chart = new Chart(ctx, {
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         fill: true,
         tension: 0.4,
-        pointRadius: 6,
+        point迪Radius: 6,
         pointHoverRadius: 8,
         pointBorderWidth: 2,
         pointBorderColor: '#ffffff',
@@ -106,6 +123,73 @@ const chart = new Chart(ctx, {
       legend: { labels: { color: '#ffffff' } }
     }
   }
+});
+
+// Update UI based on auth state
+// Update UI based on auth state
+function updateUI(user) {
+  if (user) {
+    signInBtn.classList.add('hidden');
+    logoutBtn.classList.remove('hidden');
+    if (adminEmails.includes(user.email)) {
+      calibrateBtn.classList.remove('hidden');
+    } else {
+      calibrateBtn.classList.add('hidden');
+    }
+  } else {
+    signInBtn.classList.remove('hidden');
+    calibrateBtn.classList.add('hidden');
+    logoutBtn.classList.add('hidden');
+  }
+}
+
+// Google Sign-In
+signInBtn.addEventListener('click', () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider)
+    .then((result) => {
+      const user = result.user;
+      if (adminEmails.includes(user.email)) {
+        Swal.fire({
+          background: '#1e293b',
+          icon: 'success',
+          title: 'Authentication Successful',
+          text: `Welcome, ${user.displayName}!`,
+        });
+      } else {
+        Swal.fire({
+          background: '#1e293b',
+          icon: 'error',
+          title: 'Access Denied',
+          text: 'You are not authorized to access calibration features.',
+        });
+        firebase.auth().signOut();
+      }
+    })
+    .catch((error) => {
+      showErrorAlert(`Authentication Failed: ${error.message}`);
+    });
+});
+
+// Logout
+logoutBtn.addEventListener('click', () => {
+  firebase.auth().signOut()
+    .then(() => {
+      Swal.fire({
+        background: '#1e293b',
+        icon: 'success',
+        title: 'Logged Out',
+        text: 'You have been successfully logged out.',
+      });
+    })
+    .catch((error) => {
+      showErrorAlert(`Logout Failed: ${error.message}`);
+    });
+});
+
+// Monitor auth state
+firebase.auth().onAuthStateChanged((user) => {
+  updateUI(user);
 });
 
 // Last Seen Table Update
@@ -222,7 +306,7 @@ function saveOffsetsToFirestore() {
     });
 }
 
-document.getElementById('calibrateBtn').addEventListener('click', async () => {
+calibrateBtn.addEventListener('click', async () => {
   const { isConfirmed } = await Swal.fire({
     background: '#1e293b',
     title: 'Preparation',
@@ -295,7 +379,7 @@ client.on('message', (topic, message) => {
     sensorLastSeenMap.set(sensor, timestamp.getTime());
 
     updateChart();
-    updateLastSeenTable(); // 👈 Added here
+    updateLastSeenTable();
 
     db.collection('sensorLastSeen').doc(sensor).set({
       temperature: temp,
