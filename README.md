@@ -2,9 +2,9 @@
 # TemPro: TemperatureProfiler
 
 **TemPro** is an IoT-based temperature monitoring system using the ESP8266 microcontroller. It transmits temperature data wirelessly via MQTT and displays it in real-time through a responsive web dashboard. Ideal for home automation, agriculture, or industrial monitoring environments.
-
+> [!Note]
+>  Checkout the 🔗 live demo at [tempro.curiosityweekends.org](http://tempro.curiosityweekends.org)
 ---
-
 ## 🔧 Features
 
 - 📡 **ESP8266-Powered**: Wireless temperature sensing and transmission  
@@ -71,21 +71,14 @@ For a detailed overview of how TemPro works (including the role of Firebase Auth
 
 ---
 
-## 📷 Screenshots
-
-Include screenshots of your hardware setup and web dashboard here.
-
----
-
 ## 🤝 Contributing
-
 Got improvements? Found a bug?
-
-1. Fork the repo
-2. Create your feature branch: `git checkout -b my-feature`
-3. Commit your changes: `git commit -m 'Add feature'`
-4. Push to the branch: `git push origin my-feature`
-5. Open a Pull Request!
+> [!Note]
+> 1. Fork the repo
+> 2. Create your feature branch: `git checkout -b my-feature`
+> 3. Commit your changes: `git commit -m 'Add feature'`
+> 4. Push to the branch: `git push origin my-feature`
+> 5. Open a Pull Request!
 
 ---
 
