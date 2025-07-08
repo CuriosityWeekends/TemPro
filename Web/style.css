@@ -91,3 +91,56 @@ body {
 #calibrateBtn:hover {
     background-color: #15803d;
 }
+
+/* Loading spinner animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Auth button styles */
+#signInButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#signOutButton:hover {
+    background-color: #dc2626 !important;
+}
+
+/* SweetAlert2 Dark Theme Customization */
+.swal2-dark-popup {
+  background: #18192a !important;
+  color: #e0e0ff !important;
+  border: 2px solid #0ff !important;
+  box-shadow: 0 0 30px #0ff3, 0 0 10px #18192a;
+}
+.swal2-dark-title {
+  color: #4ade80 !important;
+  text-shadow: 0 0 6px #0ff;
+  font-family: 'Orbitron', 'Inter', sans-serif;
+}
+.swal2-dark-content {
+  color: #e0e0ff !important;
+  font-family: 'JetBrains Mono', 'Inter', monospace;
+}
+.swal2-dark-confirm, .swal2-dark-cancel {
+  background: linear-gradient(90deg, #0ff 0%, #4ade80 100%) !important;
+  color: #18192a !important;
+  border: none !important;
+  font-weight: bold;
+  box-shadow: 0 0 10px #0ff6;
+  transition: background 0.2s, color 0.2s;
+}
+.swal2-dark-confirm:hover, .swal2-dark-cancel:hover {
+  background: linear-gradient(90deg, #4ade80 0%, #0ff 100%) !important;
+  color: #fff !important;
+}
