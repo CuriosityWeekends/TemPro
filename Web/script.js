@@ -1,4 +1,4 @@
-const client = mqtt.connect('ws://dev.streakon.net:9001', {
+const client = mqtt.connect('ws://s3.jemshid.com:9001', {
   username: 'tempro',
   password: 'firstfloor'
 });
