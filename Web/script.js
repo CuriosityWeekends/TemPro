@@ -228,11 +228,11 @@ function updateOnlineSensors() {
 function getSensorName(sensorId) {
   const sensorNames = {
     'sensor1': 'Sensor A',
-    'sensor2': 'Sensor B',
-    'sensor3': 'Sensor C',
+    'sensor2': 'AC',
+    'sensor3': 'Stationary',
     'sensor4': 'Sensor D',
-    'sensor5': 'Sensor E',
-    'sensor6': 'Sensor F',
+    'sensor5': '3Dprinter',
+    'sensor6': 'Electronics',
     'sensor7': 'Sensor G',
     'sensor8': 'Sensor H',
     'sensor9': 'Sensor I',
