@@ -123,14 +123,14 @@ function updateChart() {
   }
 
   const sensorIds = ['sensor1', 'sensor2', 'sensor3', 'sensor4', 'sensor5', 'sensor6', 'sensor7', 'sensor8', 'sensor9', 'sensor10'];
-  
+
   sensorIds.forEach(sensorId => {
     const rawTemperature = sensorDataMap.get(sensorId);
     if (rawTemperature !== undefined) {
       const sensorName = getSensorName(sensorId);
       const offset = sensorOffsetMap.get(sensorId) || 0;
       const calibratedTemperature = rawTemperature + offset;
-      
+
       sensorLabels.push(sensorName);
       sensorTemperatures.push(parseFloat(calibratedTemperature.toFixed(1)));
     }
@@ -157,11 +157,11 @@ function updateChart() {
 function updateOnlineSensors() {
   const now = Date.now();
   const onlineSensorsContainer = document.getElementById('onlineSensors');
-  
+
   if (!onlineSensorsContainer) return;
-  
+
   onlineSensorsContainer.innerHTML = '';
-  
+
   const onlineSensors = [];
   for (const [sensorId, lastSeen] of sensorLastSeenMap.entries()) {
     if (now - lastSeen < 10000) {
@@ -170,22 +170,22 @@ function updateOnlineSensors() {
       onlineSensors.push({ id: sensorId, name: sensorName, temperature });
     }
   }
-  
+
   onlineSensors.sort((a, b) => {
     const aNum = parseInt(a.id.replace('sensor', ''));
     const bNum = parseInt(b.id.replace('sensor', ''));
     return aNum - bNum;
   });
-  
+
   onlineSensors.forEach(sensor => {
     const sensorElement = document.createElement('div');
     sensorElement.className = 'flex items-center justify-between p-3 bg-green-900 rounded-lg border border-green-600';
     sensorElement.setAttribute('data-sensor', sensor.id);
-    
+
     const rawTemp = sensorDataMap.get(sensor.id) || 0;
     const offset = sensorOffsetMap.get(sensor.id) || 0;
     const calibratedTemp = rawTemp + offset;
-    
+
     sensorElement.innerHTML = `
       <div class="flex items-center">
         <div class="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -197,30 +197,30 @@ function updateOnlineSensors() {
         ${offset !== 0 ? `<span class="text-xs text-blue-400 monospace">+${offset.toFixed(1)}</span>` : ''}
       </div>
     `;
-    
+
     onlineSensorsContainer.appendChild(sensorElement);
   });
-  
+
   if (onlineSensors.length === 0) {
     const noSensorsElement = document.createElement('div');
     noSensorsElement.className = 'text-center py-4 text-gray-400 text-sm';
     noSensorsElement.textContent = 'No sensors online';
     onlineSensorsContainer.appendChild(noSensorsElement);
   }
-  
+
   onlineSensorsContainer.classList.add('dark');
-  
+
   const lastUpdatedElement = document.querySelector('.text-xs.text-gray-500.mt-4');
   if (lastUpdatedElement) {
     const now = new Date();
-    lastUpdatedElement.textContent = `Last updated: ${now.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    })} - ${now.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
+    lastUpdatedElement.textContent = `Last updated: ${now.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    })} - ${now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
     })}`;
   }
 }
@@ -228,11 +228,11 @@ function updateOnlineSensors() {
 function getSensorName(sensorId) {
   const sensorNames = {
     'sensor1': 'Sensor A',
-    'sensor2': 'Sensor B', 
-    'sensor3': 'Sensor C',
+    'sensor2': 'AC',
+    'sensor3': 'Stationary',
     'sensor4': 'Sensor D',
-    'sensor5': 'Sensor E',
-    'sensor6': 'Sensor F',
+    'sensor5': '3Dprinter',
+    'sensor6': 'Electronics',
     'sensor7': 'Sensor G',
     'sensor8': 'Sensor H',
     'sensor9': 'Sensor I',
@@ -245,7 +245,7 @@ async function calibrateSensors() {
   console.log('Calibration started');
   console.log('Current sensor data:', sensorDataMap);
   console.log('MQTT connection status:', client.connected);
-  
+
   const { isConfirmed } = await darkSwal({
     title: 'Preparation',
     text: 'Please place all sensors in the same position for calibration.',
@@ -299,11 +299,11 @@ async function calibrateSensors() {
 
     sensorOffsetMap.clear();
     const calibrationPromises = [];
-    
+
     for (const [sensor, temp] of sensorDataMap.entries()) {
       const offset = median - temp;
       sensorOffsetMap.set(sensor, offset);
-      
+
       const calibrationRecord = {
         sensorId: sensor,
         rawTemp: temp.toFixed(2),
@@ -318,7 +318,7 @@ async function calibrateSensors() {
         }),
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       };
-      
+
       calibrationHistory.push(calibrationRecord);
       calibrationPromises.push(saveCalibrationToFirebase(calibrationRecord));
     }
@@ -385,21 +385,21 @@ async function loadCalibrationHistory() {
       .orderBy('timestamp', 'desc')
       .limit(50)
       .get();
-    
+
     calibrationHistory.length = 0;
     sensorOffsetMap.clear();
-    
+
     snapshot.forEach(doc => {
       const data = doc.data();
       calibrationHistory.push({
         ...data,
         id: doc.id
       });
-      
+
       // Update sensorOffsetMap with the latest offset for each sensor
       sensorOffsetMap.set(data.sensorId, parseFloat(data.offset));
     });
-    
+
     console.log('Calibration history and offsets loaded from Firebase');
     updateCurrentSensorTable();
   } catch (error) {
@@ -410,15 +410,15 @@ async function loadCalibrationHistory() {
 async function deleteCalibrationRecord(recordId) {
   try {
     await firebaseDB.collection('calibrations').doc(recordId).delete();
-    
+
     const index = calibrationHistory.findIndex(record => record.id === recordId);
     if (index > -1) {
       calibrationHistory.splice(index, 1);
     }
-    
+
     // Reload offsets from Firebase to ensure consistency
     await loadCalibrationHistory();
-    
+
     await darkSwal({
       icon: 'success',
       title: 'Record Deleted',
@@ -437,7 +437,7 @@ async function deleteCalibrationRecord(recordId) {
 }
 
 function initializeAuth() {
-  firebaseAuth.onAuthStateChanged(async function(user) {
+  firebaseAuth.onAuthStateChanged(async function (user) {
     if (user) {
       updateUserUI(user);
       adminControls.classList.remove("hidden");
@@ -448,7 +448,7 @@ function initializeAuth() {
     // Always load calibration history, regardless of login state
     await loadCalibrationHistory();
   });
-  
+
 
   if (signInButton) {
     signInButton.addEventListener("click", handleSignIn);
@@ -471,7 +471,7 @@ async function handleSignIn() {
 
     const result = await firebaseAuth.signInWithPopup(googleProvider);
     const user = result.user;
-    
+
     if (!WHITELISTED_EMAILS.includes(user.email)) {
       await firebaseAuth.signOut();
       throw new Error(`Access denied. Email ${user.email} is not authorized.`);
@@ -487,7 +487,7 @@ async function handleSignIn() {
 
   } catch (error) {
     console.error('Sign in error:', error);
-    
+
     const button = document.getElementById('signInButton');
     if (button) {
       button.disabled = false;
@@ -527,10 +527,10 @@ async function handleSignIn() {
 
 function updateUserUI(user) {
   if (user) {
-    const initials = user.displayName ? 
-      user.displayName.split(' ').map(n => n[0]).join('').toUpperCase() : 
+    const initials = user.displayName ?
+      user.displayName.split(' ').map(n => n[0]).join('').toUpperCase() :
       user.email[0].toUpperCase();
-    
+
     userSection.innerHTML = `
       <div class="flex items-center">
         <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center mr-2">
@@ -601,13 +601,13 @@ function getUserRole(email) {
 
 client.on('connect', () => {
   console.log('MQTT Connected successfully');
-  
+
   const mqttStatus = document.getElementById('mqttStatus');
   if (mqttStatus) {
     mqttStatus.textContent = 'Connected';
     mqttStatus.className = 'text-green-400';
   }
-  
+
   for (let i = 1; i <= 10; i++) {
     const topic = `tempro/sensor${i}`;
     client.subscribe(topic);
@@ -623,11 +623,11 @@ client.on('message', async (topic, message) => {
   if (!isNaN(temp)) {
     sensorDataMap.set(sensor, temp);
     sensorLastSeenMap.set(sensor, Date.now());
-    
+
     // Get offset from Firebase before showing final temperature
     const offset = await getSensorOffset(sensor);
     sensorOffsetMap.set(sensor, offset);
-    
+
     console.log(`Updated sensor ${sensor} with temperature: ${temp}°C, offset: ${offset}`);
     updateCurrentSensorTable();
   } else {
@@ -642,7 +642,7 @@ async function getSensorOffset(sensorId) {
       .orderBy('timestamp', 'desc')
       .limit(1)
       .get();
-    
+
     if (!snapshot.empty) {
       const doc = snapshot.docs[0];
       return parseFloat(doc.data().offset) || 0;
@@ -660,7 +660,7 @@ client.on('error', (error) => {
 
 client.on('disconnect', () => {
   console.log('MQTT Disconnected');
-  
+
   const mqttStatus = document.getElementById('mqttStatus');
   if (mqttStatus) {
     mqttStatus.textContent = 'Disconnected';
@@ -670,7 +670,7 @@ client.on('disconnect', () => {
 
 client.on('reconnect', () => {
   console.log('MQTT Reconnecting...');
-  
+
   const mqttStatus = document.getElementById('mqttStatus');
   if (mqttStatus) {
     mqttStatus.textContent = 'Reconnecting...';
@@ -685,12 +685,16 @@ function updateCurrentSensorTable() {
 
   const now = Date.now();
   const sensorIds = ['sensor1', 'sensor2', 'sensor3', 'sensor4', 'sensor5', 'sensor6', 'sensor7', 'sensor8', 'sensor9', 'sensor10'];
+  const finalTemps = []; // Store final temperatures
   sensorIds.forEach(sensorId => {
     const rawTemp = sensorDataMap.get(sensorId);
     const offset = sensorOffsetMap.get(sensorId) || 0;
     const lastSeen = sensorLastSeenMap.get(sensorId);
     if (rawTemp !== undefined && lastSeen) {
       const finalTemp = rawTemp + offset;
+      console.log("Final temp", finalTemp);
+
+      finalTemps.push(finalTemp); // Collect final temperature
       const sensorName = getSensorName(sensorId);
       const lastSeenStr = new Date(lastSeen).toLocaleString('en-US', {
         month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
@@ -707,19 +711,41 @@ function updateCurrentSensorTable() {
       tableBody.appendChild(row);
     }
   });
+  if (finalTemps.length > 0) {
+    finalTemps.sort((a, b) => a - b);
+    const mid = Math.floor(finalTemps.length / 2);
+    let median;
+    if (finalTemps.length % 2 === 0) {
+      median = (finalTemps[mid - 1] + finalTemps[mid]) / 2;
+    } else {
+      median = finalTemps[mid];
+    }
+
+    console.log("Median of final temperatures:", median.toFixed(2) + "°C");
+
+    // Show in page (only update number, not the °C part)
+    const medianNumEl = document.getElementById('medianTempValueNum');
+    if (medianNumEl) {
+      medianNumEl.innerText = median.toFixed(2);
+    }
+
+
+  } else {
+    console.log("No final temperatures available to calculate median.");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log('DOM loaded, initializing auth...');
-  
+
   initializeAuth();
-  
+
   calibrateButton.addEventListener("click", calibrateSensors);
-  
+
   window.addEventListener("resize", function () {
     myChart.resize();
   });
-  
+
   updateCurrentSensorTable();
 });
 
